@@ -1,20 +1,39 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
-import Box from '@mui/material/Box';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
 import Header from './components/Header';
-import { Typography } from '@mui/material';
+import MoodSelection from './components/MoodSelection';
+import { Box } from '@mui/material';
+
+import RecChoice from './components/RecChoice';
+import ProgressBar from './components/ProgressBar';
+import SelectGenres from './components/SelectGenres';
 
 function App() {
+
+  // set window title
+  document.title = 'Mood.io';
 
   const theme = createTheme({
   });
 
+  // variables
   const moods = ['Happy', 'Sad', 'Nostalgic', 'Energetic', 'Motivated', 'Hopeful', 'Loving', 'Depressed', 'Peaceful'];
+  const movieGenres = ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'History', 'Horror', 'Music', 'Mystery', 'Romance', 'Science Fiction', 'Thriller'];
+  const musicGenres = ['Afrobeats', 'Alternative', 'Blues', 'Classical', 'Country', 'Dance', 'Electronic', 'Hip-Hop', 'Jazz', 'Pop', 'R&B', 'Rap', 'Reggae', 'Rock', 'Soul', 'Techno', 'Metal'];
+  const choices = ['Movie', 'TV Show', 'Music'];
+
+  const movieColor = '#ff0000';
+  const showColor = '#00ff00';
+  const musicColor = '#0000ff';
+  const neutralColor = '#ffffff';
+
+  // states
+  const [mood, setMood] = useState('');
+  const [genreList, setGenreList] = useState([]);
+  const [recChoice, setRecChoice] = useState('');
+  const [doneWithGenre, setDoneWithGenre] = useState(false);
+  const [genreRank, setGenreRank] = useState({});
 
   useEffect(() => {
     fetch('/api/hello', {}) 
@@ -31,39 +50,69 @@ function App() {
         console.error('Error while fetching:', error);
       });
   }, []);
-  
+
+  const handlesetRecChoice = (choice) => {
+    setRecChoice(choice);
+    if (choice === 'Movie') {
+      setGenreList(movieGenres);
+    }
+    else if (choice === 'TV Show') {
+      setGenreList(movieGenres);
+    }
+    else if (choice === 'Music') {
+      setGenreList(musicGenres);
+    }
+  };
+
+  const handleSetGenreRank = (genre) => {
+    if (genreRank[genre] === undefined) {
+      setGenreRank({...genreRank, [genre]: 1});
+    }
+    else {
+      setGenreRank({...genreRank, [genre]: genreRank[genre] + 1});
+    }
+    console.log(genreRank);
+  };
+
   return (
     <ThemeProvider theme={theme}>
     <div className="App">
       <Header />
+      {/* <ProgressBar /> not today's problem */}
       <Box
       sx={{
         display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
         flexWrap: 'wrap',
-        '& > :not(style)': {
-          m: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          display: 'flex',
-          flexDirection: 'row',
-
-          // width: 128,
-          // height: 128,
-        },
         width: '85%',
         height: '100%',
         bgcolor: 'rgba(15, 15, 15, 1)',
         borderRadius: '10px',
         padding: '10px',
         border: '2px solid',
-        //borderColor: 'rgba(255, 0, 0, 0.5)',
-        borderColor: 'rgba(0, 255, 0, 0.5)',
+        marginTop: '10px',
+        borderColor: 'rgba(255, 0, 0, 0.5)',
+        //borderColor: 'rgba(0, 255, 0, 0.5)',
       }}
     >
-      <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: 'white' }}>
-        Hello there, what's your mood today?
-      </Typography>
+      {/* Mood Selection */}
+      {(mood === '') && (recChoice === '') &&
+      <MoodSelection moods={moods} setMood={setMood}/>
+      }
+
+      {/* Choice Selection */}
+      {(mood !== '') && (recChoice === '') &&
+        <RecChoice choices={choices} setRecChoice={handlesetRecChoice}/>
+      }
+
+      {/* Choose Genres */}
+      {(mood !== '') && (recChoice !== '') &&
+        <SelectGenres genreList={genreList} setGenreRank={handleSetGenreRank} setDoneWithGenre={setDoneWithGenre}/>
+        }
       
+      {/* Choose what you have watched */}
     </Box>
     </div>
     </ThemeProvider>
