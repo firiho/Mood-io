@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './App.css';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Header from './components/Header';
 import MoodSelection from './components/MoodSelection';
-import { Box } from '@mui/material';
-
+import { Box, CssBaseline } from '@mui/material';
 import RecChoice from './components/RecChoice';
 import ProgressBar from './components/ProgressBar';
 import SelectGenres from './components/SelectGenres';
+import LoadMovies from './components/LoadMovies';
+import LoadMusic from './components/LoadMusic';
 
 function App() {
 
@@ -15,18 +16,24 @@ function App() {
   document.title = 'Mood.io';
 
   const theme = createTheme({
+    palette: {
+      mode: 'dark',
+      background: {
+        default: '#000000',
+      },
+    },
+    typography: {
+      fontFamily: 'Roboto, Arial, sans-serif',
+    },
   });
 
   // variables
   const moods = ['Happy', 'Sad', 'Nostalgic', 'Energetic', 'Motivated', 'Hopeful', 'Loving', 'Depressed', 'Peaceful'];
-  const movieGenres = ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'History', 'Horror', 'Music', 'Mystery', 'Romance', 'Science Fiction', 'Thriller'];
   const musicGenres = ['Afrobeats', 'Alternative', 'Blues', 'Classical', 'Country', 'Dance', 'Electronic', 'Hip-Hop', 'Jazz', 'Pop', 'R&B', 'Rap', 'Reggae', 'Rock', 'Soul', 'Techno', 'Metal'];
-  const choices = ['Movie', 'TV Show', 'Music'];
+  const movieGenres = ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'History', 'Horror', 'Music', 'Mystery', 'News', 'Reality', 'Romance', 'Science Fiction', 'Talk Show', 'Thriller', 'War', 'Western'];
+  const choices = ['Movie or TV Show', 'Music'];
 
-  const movieColor = '#ff0000';
-  const showColor = '#00ff00';
-  const musicColor = '#0000ff';
-  const neutralColor = '#ffffff';
+  const colors = { movieColor: 'rgba(255, 0, 0, 0.5)', musicColor: 'rgba(0, 255, 0, 0.5)', neutralColor: '#ffffff'}
 
   // states
   const [mood, setMood] = useState('');
@@ -34,50 +41,46 @@ function App() {
   const [recChoice, setRecChoice] = useState('');
   const [doneWithGenre, setDoneWithGenre] = useState(false);
   const [genreRank, setGenreRank] = useState({});
-
-  useEffect(() => {
-    fetch('/api/hello', {}) 
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Data:', data);
-      })
-      .catch(error => {
-        console.error('Error while fetching:', error);
-      });
-  }, []);
+  const [wrapperColor, setWrapperColor] = useState(colors.neutralColor);
 
   const handlesetRecChoice = (choice) => {
     setRecChoice(choice);
-    if (choice === 'Movie') {
+    if (choice === 'Movie or TV Show') {
       setGenreList(movieGenres);
-    }
-    else if (choice === 'TV Show') {
-      setGenreList(movieGenres);
+      setWrapperColor(colors.movieColor);
     }
     else if (choice === 'Music') {
       setGenreList(musicGenres);
+      setWrapperColor(colors.musicColor);
     }
   };
 
   const handleSetGenreRank = (genre) => {
-    if (genreRank[genre] === undefined) {
-      setGenreRank({...genreRank, [genre]: 1});
+    if (genreRank[genre] === 1) {
+      delete genreRank[genre];
     }
-    else {
-      setGenreRank({...genreRank, [genre]: genreRank[genre] + 1});
+    else if (genreRank[genre] === 0 || genreRank[genre] === undefined) {
+      setGenreRank({[genre]: 1, ...genreRank});
     }
     console.log(genreRank);
+    return;
   };
 
   return (
     <ThemeProvider theme={theme}>
-    <div className="App">
-      <Header />
+      <CssBaseline />
+      <Box className="App">
+      <Header 
+      setDoneWithGenre={setDoneWithGenre} 
+      setGenreList={setGenreList} 
+      setGenreRank={setGenreRank} 
+      setMood={setMood} 
+      setRecChoice={handlesetRecChoice}
+      movieGenres={movieGenres}
+      musicGenres={musicGenres}
+      setWrapperColor={setWrapperColor}
+      neutralColor={colors.neutralColor}
+      />
       {/* <ProgressBar /> not today's problem */}
       <Box
       sx={{
@@ -93,28 +96,41 @@ function App() {
         padding: '10px',
         border: '2px solid',
         marginTop: '10px',
-        borderColor: 'rgba(255, 0, 0, 0.5)',
-        //borderColor: 'rgba(0, 255, 0, 0.5)',
+        borderColor: wrapperColor,
       }}
     >
       {/* Mood Selection */}
       {(mood === '') && (recChoice === '') &&
-      <MoodSelection moods={moods} setMood={setMood}/>
+      <MoodSelection moods={moods} setMood={setMood} colors={colors} recChoice={recChoice}/>
+      }
+
+      {/* Mood Selection */}
+      {(mood === '') && (recChoice !== '') &&
+      <MoodSelection moods={moods} setMood={setMood} colors={colors} recChoice={recChoice}/>
       }
 
       {/* Choice Selection */}
       {(mood !== '') && (recChoice === '') &&
-        <RecChoice choices={choices} setRecChoice={handlesetRecChoice}/>
+        <RecChoice choices={choices} setRecChoice={handlesetRecChoice} colors={colors}/>
       }
 
       {/* Choose Genres */}
-      {(mood !== '') && (recChoice !== '') &&
-        <SelectGenres genreList={genreList} setGenreRank={handleSetGenreRank} setDoneWithGenre={setDoneWithGenre}/>
+      {(mood !== '') && (recChoice !== '') && (!doneWithGenre) &&
+        <SelectGenres genreList={genreList} setGenreRank={handleSetGenreRank} setDoneWithGenre={setDoneWithGenre} colors={colors} recChoice={recChoice}/>
         }
       
-      {/* Choose what you have watched */}
+      
+      {/* Choose what you have watched/listened to */}
+
+      {(doneWithGenre) && recChoice === 'Movie or TV Show' &&
+      <LoadMovies genreRank={genreRank} mood={mood}/>
+      }
+
+      {(doneWithGenre) && recChoice === 'Music' &&
+      <LoadMusic genreRank={genreRank} mood={mood}/>
+      }
     </Box>
-    </div>
+    </Box>
     </ThemeProvider>
   );
 }

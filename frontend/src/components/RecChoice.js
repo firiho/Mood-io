@@ -1,6 +1,6 @@
 import { Typography, Box} from '@mui/material';
 
-function RecChoice({choices, setRecChoice}) {
+function RecChoice({choices, setRecChoice, colors}) {
   return (
     <>
       <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: 'white', padding: '20px'}}>
@@ -29,7 +29,7 @@ function RecChoice({choices, setRecChoice}) {
                           padding: '10px', 
                           borderRadius: '10px', 
                           border: '2px solid', 
-                          borderColor: 'rgba(255, 0, 0, 0.5)', 
+                          borderColor: colors.neutralColor, 
                           cursor: 'pointer', }}
             onClick={() => setRecChoice(choice)}>
               {choice}

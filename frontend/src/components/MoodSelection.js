@@ -1,6 +1,6 @@
 import { Typography, Box} from '@mui/material';
 
-function MoodSelection({ moods, setMood }) {
+function MoodSelection({ moods, setMood, colors, recChoice }) {
   return (
     <>
       <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: 'white', padding: '20px'}}>
@@ -29,7 +29,11 @@ function MoodSelection({ moods, setMood }) {
                           padding: '10px', 
                           borderRadius: '10px', 
                           border: '2px solid', 
-                          borderColor: 'rgba(255, 0, 0, 0.5)', 
+                          borderColor: recChoice === '' 
+                          ? colors.neutralColor 
+                          : recChoice === 'Movie or TV Show' 
+                          ? colors.movieColor 
+                          : colors.musicColor,
                           cursor: 'pointer', }}
             onClick={() => setMood(mood)}>
               {mood}
