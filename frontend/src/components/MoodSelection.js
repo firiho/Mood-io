@@ -2,7 +2,15 @@ import { Typography, Box} from '@mui/material';
 
 function MoodSelection({ moods, setMood, colors, recChoice }) {
   return (
-    <>
+    <Box sx={
+      {
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }
+    }>
       <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: 'white', padding: '20px'}}>
         Hello there, what's your mood today?
       </Typography>
@@ -41,7 +49,7 @@ function MoodSelection({ moods, setMood, colors, recChoice }) {
           </Box>
         ))}
       </Box>
-    </>
+    </Box>
   )
 }
 

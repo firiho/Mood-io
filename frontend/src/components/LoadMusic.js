@@ -1,7 +1,16 @@
-import React from 'react'
+import { Box } from '@mui/material';
 
 export default function LoadMusic({genreRank, mood}) {
   return (
-    <div>LoadMusic</div>
+    <Box sx={{ 
+      flexGrow: 1, 
+      padding: 1, 
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+              }}>
+    </Box>
   )
 }

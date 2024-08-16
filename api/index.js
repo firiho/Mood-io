@@ -15,12 +15,6 @@ app.use(cors());
 app.use(bodyParser.json());
 
 async function getMovies(genreRank, mood) {
-
-    const [moviesList, setMoviesList] = useState([]);
-
-    if (moviesList.length !== 0) {
-        return moviesList;
-    }
     try {
         const RAPID_API_KEY = process.env.RAPID_API_KEY;
         const client = new streamingAvailability.Client(new streamingAvailability.Configuration({
@@ -45,10 +39,9 @@ async function getMovies(genreRank, mood) {
             country: "us",
             genres: genres,
             orderBy: "rating",
-            genres_relation: "and",
+            genres_relation: "or",
             keywords: mood,
         });
-        setMoviesList(data);
         return data;
     } catch (error) {
         console.error("Error fetching movies:", error);
@@ -60,10 +53,19 @@ app.get('/api', (req, res) => {
     res.json({ message: 'Hello World!' });
 });
 
+let moviesList = [];
+
 app.post('/api/getMovies', async (req, res) => {
     const { genreRank, mood } = req.body;
     try {
+        if (moviesList.length !== 0) {
+            console.log('Sending cached movies...');
+            res.json(moviesList);
+            return;
+        }
+        console.log('Fetching movies...');
         const movies = await getMovies(genreRank, mood);
+        moviesList = movies;
         res.json(movies);
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch movies" });

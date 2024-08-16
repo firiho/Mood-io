@@ -15,7 +15,15 @@ function RecChoice({ genreList, setGenreRank, setDoneWithGenre, colors, recChoic
   };
 
   return (
-    <>
+    <Box sx={
+      {
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }
+    }>
       <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: 'white', padding: '20px' }}>
         What are your favorite genres?
       </Typography>
@@ -82,7 +90,7 @@ function RecChoice({ genreList, setGenreRank, setDoneWithGenre, colors, recChoic
       >
         Done
       </Button>
-    </>
+    </Box>
   );
 }
 
