@@ -98,7 +98,6 @@ function App() {
         height: '100%',
         bgcolor: 'rgba(10, 10, 10, 0.8)',
         borderRadius: '10px',
-        padding: '10px',
         border: '2px solid',
         marginTop: '10px',
         borderColor: wrapperColor,
@@ -127,7 +126,7 @@ function App() {
       {/* Choose what you have watched/listened to */}
 
       {(doneWithGenre) && recChoice === 'Movie or TV Show' &&
-      <LoadMovies genreRank={genreRank} mood={mood} colors={colors}/>
+      <LoadMovies genreRank={genreRank} setGenreRank={setGenreRank} mood={mood} colors={colors}/>
       }
 
       {(doneWithGenre) && recChoice === 'Music' &&

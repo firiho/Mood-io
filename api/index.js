@@ -21,25 +21,28 @@ async function getMovies(genreRank, mood) {
             apiKey: RAPID_API_KEY
         }));
 
-        // clean up genreRank
-        const genres = Object.keys(genreRank)
+        // Clean up and sort genreRank
+        const cleanedAndSortedGenres = Object.keys(genreRank)
         .map(genre => {
             let lowerGenre = genre.toLowerCase();
 
             // Handle specific replacements
             if (lowerGenre === 'science fiction') {
-                return 'scifi';
+                return { genre: 'scifi', rank: genreRank[genre] };
             } else if (lowerGenre === 'talk show') {
-                return 'talk';
+                return { genre: 'talk', rank: genreRank[genre] };
             }
-            return lowerGenre;
-        });
+            return { genre: lowerGenre, rank: genreRank[genre] };
+        })
+        .sort((a, b) => b.rank - a.rank)  // Sort by rank in descending order
+        .slice(0, 3)  // Take only the top 3 genres
+        .map(item => item.genre);  // Extract only the genre names
 
         const data = await client.showsApi.searchShowsByFilters({
             country: "us",
-            genres: genres,
+            genres: cleanedAndSortedGenres,
             orderBy: "rating",
-            genres_relation: "or",
+            genres_relation: "and",
             keywords: mood,
         });
         return data;

@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Typography, Box, Grid, Card, CardMedia, CardContent, Link } from '@mui/material';
+import { Typography, Box, Grid, Card, CardMedia, CardContent, Link, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'; 
+import Tooltip from '@mui/material/Tooltip';
+import RefreshIcon from '@mui/icons-material/Refresh'; 
+import Loading from './Loading';
 
-export default function LoadMovies({ genreRank, mood, colors }) {
+export default function LoadMovies({ genreRank, setGenreRank, mood, colors }) {
     const [movies, setMovies] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [movieRank, setMovieRank] = useState({});
 
     useEffect(() => {
+        setLoading(true);
         fetch('/api/getMovies', {
             method: 'POST',
             headers: {
@@ -20,14 +28,58 @@ export default function LoadMovies({ genreRank, mood, colors }) {
         })
         .then(data => {
             setMovies(data.shows);
-            console.log('Successfully fetched:', data);
+            setLoading(false);
         })
         .catch(error => {
             console.error('Error while fetching:', error);
         });
     }, [genreRank, mood]); 
 
+    const reRecommend = () => {
+        setGenreRank(prevGenreRank => {
+            const updatedGenreRank = { ...prevGenreRank };
     
+            // Iterate over each genre in movieRank and add it to genreRank
+            Object.keys(movieRank).forEach(genre => {
+                if (updatedGenreRank[genre]) {
+                    updatedGenreRank[genre] += movieRank[genre];
+                } else {
+                    updatedGenreRank[genre] = movieRank[genre];
+                }
+            });
+    
+            return updatedGenreRank;
+        });
+        setMovieRank({});
+    };
+    
+
+    const handleRemoveMovie = (indexToRemove, liked) => {
+        setMovies(prevMovies => {
+            const updatedMovies = prevMovies.filter((_, index) => index !== indexToRemove);
+    
+            if (liked) {
+                const movie = prevMovies[indexToRemove];
+                const updatedMovieRank = { ...movieRank };
+    
+                // Increment the count for each genre of the liked movie
+                movie.genres.forEach(genre => {
+                    if (updatedMovieRank[genre.name]) {
+                        updatedMovieRank[genre.name] += 1;
+                    } else {
+                        updatedMovieRank[genre.name] = 1;
+                    }
+                });
+    
+                setMovieRank(updatedMovieRank);
+            }
+            // If no movies are left, call reRecommend
+            if (updatedMovies.length === 0) {
+                reRecommend();
+            }
+            return updatedMovies;
+        });
+    };    
 
     const movieItems = movies.slice(0, 7).map((movie, index) => {
         const uniqueStreamingOptions = movie.streamingOptions?.us?.reduce((acc, option) => {
@@ -51,12 +103,12 @@ export default function LoadMovies({ genreRank, mood, colors }) {
                 position: 'relative', 
             }}
             >
-            {/* SVG or Number Display */}
+            {/* Number Display */}
             <Box
                 component="span"
                 sx={{
                 position: 'absolute',
-                top: 10,
+                top: 0,
                 left: -20,  
                 width: 40,  
                 height: 40,
@@ -71,9 +123,58 @@ export default function LoadMovies({ genreRank, mood, colors }) {
                 boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.5)', 
                 }}
             >
-                {index + 1}  {/* Display the movie's number */}
+                {index + 1} 
             </Box>
 
+            {/* Check Button */}
+            <Tooltip title="Already watched it">
+                <IconButton
+                    sx={{
+                        position: 'absolute',
+                        top: 40,
+                        right: -10,  
+                        width: 20,
+                        height: 20,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        color: 'rgba(0,255,0,0.8)', 
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 3,
+                        fontSize: 20,  
+                        borderRadius: '50%',  
+                        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.5)', 
+                    }}
+                    onClick={() => handleRemoveMovie(index, true)}
+                >
+                    <CheckCircleIcon />
+                </IconButton>
+            </Tooltip>
+                                    
+            {/* Close Button */}
+            <Tooltip title="Don't like it">
+                <IconButton
+                    sx={{
+                        position: 'absolute',
+                        top: -10,
+                        right: -10,  
+                        width: 20,
+                        height: 20,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        color: 'red', 
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 3,
+                        fontSize: 20,  
+                        borderRadius: '50%',  
+                        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.5)', 
+                    }}
+                    onClick={() => handleRemoveMovie(index, false)}
+                >
+                    <CloseIcon />
+                </IconButton>
+            </Tooltip>
             <CardMedia
                 component="img"
                 height={index === 0 ? 180 : 250}
@@ -132,17 +233,45 @@ export default function LoadMovies({ genreRank, mood, colors }) {
     return (
         <Box sx={{ 
             flexGrow: 1, 
-            padding: 1, 
+            padding: 0, 
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
+            position: 'relative',
                     }}>
+            {loading && <Loading rec={'Movie & TV series'} color={colors.movieColor}/>}
+            {!loading && <>
+            {/* Check Button */}
+            <Tooltip title="Get More Recommendations">
+                <IconButton
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,  
+                        width: 20,
+                        height: 20,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 3,
+                        fontSize: 20,  
+                        borderRadius: '50%',  
+                        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.5)', 
+                    }}
+                    onClick={() => reRecommend()}
+                >
+                    <RefreshIcon />
+                </IconButton>
+            </Tooltip>
             <h4>Movies & TV Series Recommendations</h4>
             <Grid container spacing={2} sx={{ height: '100%'}}>
                 {movieItems}
             </Grid>
+            </>
+            }
         </Box>
     );
 }
