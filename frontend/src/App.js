@@ -5,7 +5,7 @@ import Header from './components/Header';
 import MoodSelection from './components/MoodSelection';
 import { Box, CssBaseline } from '@mui/material';
 import RecChoice from './components/RecChoice';
-import ProgressBar from './components/ProgressBar';
+// import ProgressBar from './components/ProgressBar';
 import SelectGenres from './components/SelectGenres';
 import LoadMovies from './components/LoadMovies';
 import LoadMusic from './components/LoadMusic';
@@ -29,7 +29,7 @@ function App() {
 
   // variables
   const moods = ['Happy', 'Sad', 'Nostalgic', 'Energetic', 'Motivated', 'Hopeful', 'Loving', 'Depressed', 'Peaceful'];
-  const musicGenres = ['Afrobeats', 'Alternative', 'Blues', 'Classical', 'Country', 'Dance', 'Electronic', 'Hip-Hop', 'Jazz', 'Pop', 'R&B', 'Rap', 'Reggae', 'Rock', 'Soul', 'Techno', 'Metal'];
+  const musicGenres = ['Afrobeat', 'Alternative', 'Blues', 'Classical', 'Country', 'Dance', 'Electronic', 'Hip-Hop', 'Jazz', 'Pop', 'R&B', 'Salsa', 'Reggae', 'Rock', 'Soul', 'Techno', 'Metal'];
   const movieGenres = ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'History', 'Horror', 'Music', 'Mystery', 'News', 'Reality', 'Romance', 'Science Fiction', 'Talk Show', 'Thriller', 'War', 'Western'];
   const choices = ['Movie or TV Show', 'Music'];
 
@@ -130,7 +130,7 @@ function App() {
       }
 
       {(doneWithGenre) && recChoice === 'Music' &&
-      <LoadMusic genreRank={genreRank} mood={mood}/>
+      <LoadMusic genreRank={genreRank} setGenreRank={setGenreRank} mood={mood} colors={colors}/>
       }
     </Box>
     </Box>
